@@ -1,0 +1,436 @@
+pool:
+  name: Default
+  demands:
+  - msbuild
+  - visualstudio
+
+#Your build pipeline references the ‘DeployTo’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+variables:
+  BuildPlatform: 'any cpu'
+  BuildConfiguration: 'release'
+
+steps:
+- task: NodeTool@0
+  displayName: 'Use Node 14.20.x'
+  inputs:
+    versionSpec: 14.20.x
+
+- task: Npm@1
+  displayName: 'Install NPM packages'
+  inputs:
+    command: custom
+    workingDir: Solution/Client/Web/Dubu.Client.Web.App
+    verbose: false
+    customCommand: 'install --no-progress'
+
+- task: NuGetToolInstaller@1
+  displayName: 'Prepare NuGet'
+  inputs:
+    versionSpec: 6.3.1
+
+- task: NuGetCommand@2
+  displayName: 'Install NuGet packages'
+  inputs:
+    restoreSolution: Solution/DUBU.sln
+    feedsToUse: config
+    nugetConfigPath: Solution/NuGet.Config
+    noCache: true
+
+- task: jessehouwing.visualstudio.VSBuild-sxs.VSBuild-sxs@1
+  displayName: 'VS2022 Build and publish solution Solution/DUBU.sln'
+  inputs:
+    solution: Solution/DUBU.sln
+    vsVersion: 17.0
+    msbuildArgs: '/t:"Clean;Rebuild" /p:RestorePackages=false /p:ProductionFrontendRelease=true /p:DeployOnBuild=true /p:PublishProfile=DubuPublish -verbosity:m '
+    platform: '$(BuildPlatform)'
+    configuration: '$(BuildConfiguration)'
+    clean: true
+    maximumCpuCount: true
+    msbuildArchitecture: x64
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.Tools.Cli'
+  inputs:
+    PackageId: Dubu.Tools.Cli
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Tools/Dubu.Tools.Cli/bin
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: Tools.Cli
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.Tools.Cli'
+  inputs:
+    PackageId: Dubu.Tools.Cli
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Tools/Dubu.Tools.Cli/bin
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: Tools.Cli
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.ApplicationHost.JobServer'
+  inputs:
+    PackageId: Dubu.ApplicationHost.JobServer
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.JobServer/bin
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: ApplicationHost.JobServer
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.ApplicationHost.JobServer'
+  inputs:
+    PackageId: Dubu.ApplicationHost.JobServer
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.JobServer/bin
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: ApplicationHost.JobServer
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.ApplicationHost.JobDashboard'
+  inputs:
+    PackageId: Dubu.ApplicationHost.JobDashboard
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.JobDashboard/bin
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: ApplicationHost.JobDashboard
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.ApplicationHost.JobDashboard'
+  inputs:
+    PackageId: Dubu.ApplicationHost.JobDashboard
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.JobDashboard/bin
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: ApplicationHost.JobDashboard
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.ApplicationHost.BeskedfordelerReceiver'
+  inputs:
+    PackageId: Dubu.ApplicationHost.BeskedfordelerReceiver
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.BeskedfordelerReceiver/bin
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: ApplicationHost.BeskedfordelerReceiver
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.ApplicationHost.BeskedfordelerReceiver'
+  inputs:
+    PackageId: Dubu.ApplicationHost.BeskedfordelerReceiver
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.BeskedfordelerReceiver/bin
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: ApplicationHost.BeskedfordelerReceiver
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.ApplicationHost.Services'
+  inputs:
+    PackageId: Dubu.ApplicationHost.Services
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.Services/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: ApplicationHost.Services
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.ApplicationHost.Services'
+  inputs:
+    PackageId: Dubu.ApplicationHost.Services
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.Services/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: ApplicationHost.Services
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.Client.DistributionService'
+  inputs:
+    PackageId: Dubu.Client.DistributionService
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Client/Dubu.Client.DistributionService/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: Client.DistributionService
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.Client.DistributionService'
+  inputs:
+    PackageId: Dubu.Client.DistributionService
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Client/Dubu.Client.DistributionService/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: Client.DistributionService
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.ApplicationHost.DocumentService'
+  inputs:
+    PackageId: Dubu.ApplicationHost.DocumentService
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.DocumentService/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: DocumentService.Host
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.ApplicationHost.DocumentService'
+  inputs:
+    PackageId: Dubu.ApplicationHost.DocumentService
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.DocumentService/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: ApplicationHost.DocumentService
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.ApplicationHost.BlobService'
+  inputs:
+    PackageId: Dubu.ApplicationHost.BlobService
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.BlobService/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: BlobService.Host
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+  continueOnError: true
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.ApplicationHost.BlobService'
+  inputs:
+    PackageId: Dubu.ApplicationHost.BlobService
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.BlobService/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: ApplicationHost.BlobService
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.ApplicationHost.BlobProxy'
+  inputs:
+    PackageId: Dubu.ApplicationHost.BlobProxy
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.BlobProxy/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: BlobService.Host
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+  continueOnError: true
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.ApplicationHost.BlobProxy'
+  inputs:
+    PackageId: Dubu.ApplicationHost.BlobProxy
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/ApplicationHost/Dubu.ApplicationHost.BlobProxy/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: ApplicationHost.BlobProxy
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.OData.Host'
+  inputs:
+    PackageId: Dubu.OData.Host
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/OData/Dubu.OData.Host/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: OData.Host
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.OData.Host'
+  inputs:
+    PackageId: Dubu.OData.Host
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/OData/Dubu.OData.Host/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: Odata.Host
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.Client.Web'
+  inputs:
+    PackageId: Dubu.Client.Web
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Client/Dubu.Client.Web/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: Client.Web
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.Client.Web'
+  inputs:
+    PackageId: Dubu.Client.Web
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Client/Dubu.Client.Web/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: Client.Web
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.Client.Dataudstilling.AuthorizationService'
+  inputs:
+    PackageId: Dubu.Client.Dataudstilling.AuthorizationService
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Client/Dubu.Client.Dataudstilling.AuthorizationService/bin/Release
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: Client.Dataudstilling.AuthorizationService
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.Client.Dataudstilling.AuthorizationService'
+  inputs:
+    PackageId: Dubu.Client.Dataudstilling.AuthorizationService
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Client/Dubu.Client.Dataudstilling.AuthorizationService/bin/Release
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: Dataudstilling.AuthorizationService
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.Client.TesterService'
+  inputs:
+    PackageId: Dubu.Client.TesterService
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Client/Dubu.Client.TesterService/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: Dubu.Client.TesterService
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+  continueOnError: true
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.Client.TesterService'
+  inputs:
+    PackageId: Dubu.Client.TesterService
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Client/Dubu.Client.TesterService/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: Client.TesterService
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack.OctopusPack@4
+  displayName: 'Package Dubu.Client.Dataudstilling'
+  inputs:
+    PackageId: Dubu.Client.Dataudstilling
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Client/Dubu.Client.Dataudstilling/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetAuthor: DUBU
+    NuGetTitle: Client.Dataudstilling
+    NuGetDescription: '$(Build.SourceVersion)'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-pack-nuget.OctopusPackNuGet@6
+  displayName: 'Package Dubu.Client.Dataudstilling'
+  inputs:
+    PackageId: Dubu.Client.Dataudstilling
+    PackageVersion: '$(Build.BuildNumber)'
+    SourcePath: Solution/Client/Dubu.Client.Dataudstilling/pub
+    OutputPath: '$(Build.ArtifactStagingDirectory)'
+    NuGetDescription: '$(Build.SourceVersion)'
+    NuGetAuthors: DUBU
+    NuGetTitle: Client.Dataudstilling
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-push.OctopusPush@6
+  displayName: 'Push Packages to Octopus'
+  inputs:
+    OctoConnectedServiceName: 'Octopus NCHosting'
+    Space: DUBU
+    Packages: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+  enabled: false
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-build-information.OctopusBuildInformation@6
+  displayName: 'Push Package Build Information to Octopus'
+  inputs:
+    OctoConnectedServiceName: 'Octopus NCHosting'
+    Space: DUBU
+    PackageIds: |
+     DUBU.Tools.Cli
+     Dubu.ApplicationHost.JobServer
+     Dubu.ApplicationHost.JobDashboard
+     Dubu.ApplicationHost.BeskedfordelerReceiver
+     Dubu.ApplicationHost.Services
+     Dubu.Client.DistributionService
+     Dubu.ApplicationHost.DocumentService
+     Dubu.ApplicationHost.BlobService
+     Dubu.ApplicationHost.BlobProxy
+     Dubu.OData.Host
+     Dubu.Client.Web
+     Dubu.Client.Dataudstilling.AuthorizationService
+     Dubu.Client.Dataudstilling
+    PackageVersion: '$(Build.BuildNumber)'
+
+- powershell: |
+   $ReleaseNotes = git log -1 --pretty=tformat:"%aD | $(Build.SourceBranchName) | %H | $(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)" $(Build.SourceVersion)
+   Write-Output ("##vso[task.setvariable variable=ReleaseNotes;]$ReleaseNotes")
+  failOnStderr: true
+  displayName: 'Create Octopus Release Notes'
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-create-release.OctopusCreateRelease@6
+  displayName: 'Create Octopus Release'
+  inputs:
+    OctoConnectedServiceName: 'Octopus NCHosting'
+    Space: DUBU
+    Project: DUBU
+    ReleaseNumber: '$(Build.BuildNumber)-0'
+    Packages: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    ReleaseNotes: '$(ReleaseNotes)'
+
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octopus-deploy.OctopusDeployRelease@6
+  displayName: 'Deploy Octopus Release'
+  inputs:
+    OctoConnectedServiceName: 'Octopus NCHosting'
+    Space: DUBU
+    Project: DUBU
+    ReleaseNumber: '$(Build.BuildNumber)-0'
+    Environments: '$(DeployTo)'
+    Variables: |
+     Process.DeleteDatabase: False
+     Process.RunMigrations: True
+     Process.RunReindex: False
+     Process.RunSeed: True
+     Process.StopBeskedfordeler: True
+     Process.StopJobServer: True
+     Process.UpdateCprSubscriptions: False
