@@ -1,13 +1,3 @@
-# The following workflow provides an opinionated template you can customize for your own needs.
-#
-# To configure Octopus, set the OCTOPUS_API_TOKEN secret to the Octopus API key, and
-# set the OCTOPUS_SERVER_URL secret to the Octopus URL.
-#
-# Double check the "project" and "deploy_to" properties in the "Create Octopus Release" step
-# match your Octopus projects and environments.
-#
-# Get a trial Octopus instance from https://octopus.com/start
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -139,7 +129,7 @@ jobs:
       packages: RandomQuotes
       overwrite_mode: OverwriteExisting
     - name: Push Octopus packages
-      uses: OctopusDeploy/push-package-action@v1.1.1
+      uses: OctopusDeploy/push-package-action@v1
       with:
         api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
         packages: ${{ steps.package.outputs.artifacts }}
