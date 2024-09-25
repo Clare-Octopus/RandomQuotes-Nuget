@@ -47,7 +47,7 @@ jobs:
       run: dotnet list package --outdated > dependencyUpdates.txt
       shell: bash
     - name: Collect Dependency Updates
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: Dependencies Updates
         path: dependencyUpdates.txt
@@ -129,6 +129,15 @@ jobs:
         draft: 'false'
         prerelease: 'false'
         target_commitish: ${{ github.sha }}
+    - name: Generate Octopus Deploy build information
+    uses: OctopusDeploy/push-build-information-action@v1
+    env:
+      OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_TOKEN }}
+      OCTOPUS_HOST: ${{ secrets.OCTOPUS_SERVER_URL }}
+    with:
+      version: ${{ env.PACKAGE_VERSION }}
+      packages: RandomQuotes
+      overwrite_mode: OverwriteExisting
     - name: Push to Octopus
       uses: OctopusDeploy/push-package-action@v1.1.1
       with:
