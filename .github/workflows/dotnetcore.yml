@@ -129,12 +129,16 @@ jobs:
         draft: 'false'
         prerelease: 'false'
         target_commitish: ${{ github.sha }}
-    - name: Push build information to Octopus Deploy 🐙
-      uses: OctopusDeploy/push-build-information-action@v3
+    - name: Generate Octopus Deploy build information
+      uses: xo-energy/action-octopus-build-information@v1.1.2
       with:
-        packages: |
-          ${{ steps.package.outputs.artifacts }}
-        version: 2.0.1
+        octopus_api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
+        octopus_project: JIRA Deployment
+        octopus_server: ${{ secrets.OCTOPUS_SERVER_URL }}
+        push_version: ${{ steps.determine_version.outputs.semVer }}
+        push_package_ids: RandomQuotesTCNugetCloud
+        push_overwrite_mode: OverwriteExisting
+        output_path: octopus
     - name: Push to Octopus
       uses: OctopusDeploy/push-package-action@v1.1.1
       with:
