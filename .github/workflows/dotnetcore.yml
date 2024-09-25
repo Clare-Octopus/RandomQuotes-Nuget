@@ -1,3 +1,13 @@
+# The following workflow provides an opinionated template you can customize for your own needs.
+#
+# To configure Octopus, set the OCTOPUS_API_TOKEN secret to the Octopus API key, and
+# set the OCTOPUS_SERVER_URL secret to the Octopus URL.
+#
+# Double check the "project" and "deploy_to" properties in the "Create Octopus Release" step
+# match your Octopus projects and environments.
+#
+# Get a trial Octopus instance from https://octopus.com/start
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,7 +47,7 @@ jobs:
       run: dotnet list package --outdated > dependencyUpdates.txt
       shell: bash
     - name: Collect Dependency Updates
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v2
       with:
         name: Dependencies Updates
         path: dependencyUpdates.txt
@@ -119,17 +129,8 @@ jobs:
         draft: 'false'
         prerelease: 'false'
         target_commitish: ${{ github.sha }}
-    - name: Generate Octopus Deploy build information
-    uses: OctopusDeploy/push-build-information-action@v1
-    env:
-      OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_TOKEN }}
-      OCTOPUS_HOST: ${{ secrets.OCTOPUS_SERVER_URL }}
-    with:
-      version: ${{ env.PACKAGE_VERSION }}
-      packages: RandomQuotes
-      overwrite_mode: OverwriteExisting
-    - name: Push Octopus packages
-      uses: OctopusDeploy/push-package-action@v1
+    - name: Push to Octopus
+      uses: OctopusDeploy/push-package-action@v1.1.1
       with:
         api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
         packages: ${{ steps.package.outputs.artifacts }}
