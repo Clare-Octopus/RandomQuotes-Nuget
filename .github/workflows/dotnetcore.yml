@@ -138,7 +138,7 @@ jobs:
       version: ${{ env.PACKAGE_VERSION }}
       packages: RandomQuotes
       overwrite_mode: OverwriteExisting
-    - name: Push to Octopus
+    - name: Push Octopus packages
       uses: OctopusDeploy/push-package-action@v1.1.1
       with:
         api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
