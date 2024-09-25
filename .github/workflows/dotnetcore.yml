@@ -134,7 +134,7 @@ jobs:
       with:
         packages: |
           ${{ steps.package.outputs.artifacts }}
-        version: ${{ env.PACKAGE_VERSION }}
+        version: 2.0.1
     - name: Push to Octopus
       uses: OctopusDeploy/push-package-action@v1.1.1
       with:
@@ -142,16 +142,6 @@ jobs:
         packages: ${{ steps.package.outputs.artifacts }}
         server: ${{ secrets.OCTOPUS_SERVER_URL }}
         overwrite_mode: OverwriteExisting
-    - name: Generate Octopus Deploy build information
-      uses: xo-energy/action-octopus-build-information@v1.1.2
-      with:
-        octopus_api_key: ${{ secrets.OCTOPUS_API_TOKEN }}
-        octopus_project: RandomQuotes
-        octopus_server: ${{ secrets.OCTOPUS_SERVER_URL }}
-        push_version: ${{ steps.determine_version.outputs.semVer }}
-        push_package_ids: RandomQuotes
-        push_overwrite_mode: OverwriteExisting
-        output_path: octopus
     - name: Create Octopus Release
       uses: OctopusDeploy/create-release-action@v1.1.1
       with:
