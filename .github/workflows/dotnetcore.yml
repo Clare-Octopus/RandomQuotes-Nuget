@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
         fetch-depth: '0'
     - name: Set up DotNET Core
@@ -129,6 +129,12 @@ jobs:
         draft: 'false'
         prerelease: 'false'
         target_commitish: ${{ github.sha }}
+    - name: Push build information to Octopus Deploy 🐙
+      uses: OctopusDeploy/push-build-information-action@v3
+      with:
+        packages: |
+          ${{ steps.package.outputs.artifacts }}
+        version: ${{ env.PACKAGE_VERSION }}
     - name: Push to Octopus
       uses: OctopusDeploy/push-package-action@v1.1.1
       with:
