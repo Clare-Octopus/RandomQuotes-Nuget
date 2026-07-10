@@ -1,8 +1,3 @@
-# ASP.NET Core (.NET Framework)
-# Build and test ASP.NET Core projects targeting the full .NET Framework.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
 - master
 
@@ -21,21 +16,22 @@ steps:
     octopusVersion: 2.21.3
 
 - pwsh: |
-      $cliargs = @(
-        "--project", "RunbookADOTest",
-        "--name", "Runbook",
-        "--environment", "Dev",
-        "--git-ref", "refs/heads/main",
-        "--package-version", "1.0.3",
-        "--server", "${env:OCTOPUSSERVERURL}",
-        "--api-key", "${env:OCTOPUSAPIKEY}",
-        "--space", "Default"
-        "--no-prompt"
-      )
-      $output = & octopus runbook run @cliArgs 2>&1
-      $output | ForEach-Object { Write-Host $_ }
-      Write-Host "Exit code: $LASTEXITCODE"
-      if ($LASTEXITCODE -ne 0) {
-        throw "Octopus runbook run failed with exit code $LASTEXITCODE"
-      }
-      displayName: 'Run Octopus Runbook (CaC project) with pinned package version'
+    $env:OCTOPUS_URL = "$(OctopusServerUrl)"
+    $env:OCTOPUS_API_KEY = "$(OctopusApiKey)"
+
+    $cliArgs = @(
+      "--project", "RunbookADOTest",
+      "--name", "Runbook",
+      "--environment", "Dev",
+      "--git-ref", "refs/heads/main",
+      "--package-version", "1.0.3",
+      "--space", "Default",
+      "--no-prompt"
+    )
+    $output = & octopus runbook run @cliArgs 2>&1
+    $output | ForEach-Object { Write-Host $_ }
+    Write-Host ("Exit code: {0}" -f $LASTEXITCODE)
+    if ($LASTEXITCODE -ne 0) {
+      throw ("Octopus runbook run failed with exit code {0}" -f $LASTEXITCODE)
+    }
+  displayName: 'Run Octopus Runbook (CaC project) with pinned package version'
