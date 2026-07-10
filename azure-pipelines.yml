@@ -20,7 +20,7 @@ steps:
   inputs:
     octopusVersion: 2.21.3
 
-- script: |
+- pwsh: |
       octopus runbook run \
         --project "RunbookADOTest" \
         --name "Runbook" \
