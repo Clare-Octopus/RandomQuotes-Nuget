@@ -21,12 +21,14 @@ steps:
     octopusVersion: 2.21.3
 
 - pwsh: |
-      octopus runbook run \
-        --project "RunbookADOTest" \
-        --name "Runbook" \
-        --environment "Dev" \
-        --package-version "1.0.3" \
-        --server "$(OctopusServerUrl)" \
-        --api-key "${env:OCTOPUSAPIKEY}" \
-        --space "Default"
+      $args = @(
+        "--project", "RunbookADOTest",
+        "--name", "My Runbook",
+        "--environment", "Production",
+        "--package-version", "$(packageVersion)",
+        "--server", "$(OctopusServerUrl)",
+        "--api-key", "${env:OCTOPUSAPIKEY}",
+        "--space", "Default"
+      )
+      octopus runbook run @args
   displayName: 'Run Octopus Runbook with pinned package version'
