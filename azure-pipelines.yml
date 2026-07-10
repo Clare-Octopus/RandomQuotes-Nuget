@@ -25,7 +25,7 @@ steps:
       "--environment", "Test",
       "--git-ref", "refs/heads/main",
       "--package-version", "2.0.0",
-      "--space", "Default",
+      "--space", "Clare",
       "--no-prompt"
     )
     $output = & octopus runbook run @cliArgs 2>&1
