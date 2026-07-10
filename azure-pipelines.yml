@@ -26,6 +26,6 @@ steps:
         --environment "Dev" \
         --package-version "1.0.3" \
         --server "$(OctopusServerUrl)" \
-        --api-key "$(OctopusApiKey)" \
+        --api-key "${env:OCTOPUSAPIKEY}" \
         --space "Default"
     displayName: 'Run Octopus Runbook with pinned package version'
