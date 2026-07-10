@@ -27,7 +27,7 @@ steps:
         "--environment", "Dev",
         "--git-ref", "refs/heads/main",
         "--package-version", "1.0.3",
-        "--server", "$(OctopusServerUrl)",
+        "--server", "${env:OCTOPUSSERVERURL}",
         "--api-key", "${env:OCTOPUSAPIKEY}",
         "--space", "Default"
       )
