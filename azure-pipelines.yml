@@ -32,5 +32,4 @@ steps:
         "--space", "Default"
       )
       octopus runbook run @args
-      
-      displayName: 'Run Octopus Runbook (CaC project) with pinned package version'
+  displayName: 'Run Octopus Runbook (CaC project) with pinned package version'
