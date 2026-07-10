@@ -22,7 +22,7 @@ steps:
     $cliArgs = @(
       "--project", "RunbookADOTest",
       "--name", "Runbook",
-      "--environment", "Dev",
+      "--environment", "Test",
       "--git-ref", "refs/heads/main",
       "--package-version", "2.0.0",
       "--space", "Default",
