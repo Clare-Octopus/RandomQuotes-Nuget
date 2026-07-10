@@ -21,7 +21,7 @@ steps:
     octopusVersion: 2.21.3
 
 - pwsh: |
-      $args = @(
+      $cliargs = @(
         "--project", "RunbookADOTest",
         "--name", "Runbook",
         "--environment", "Dev",
@@ -30,6 +30,12 @@ steps:
         "--server", "${env:OCTOPUSSERVERURL}",
         "--api-key", "${env:OCTOPUSAPIKEY}",
         "--space", "Default"
+        "--no-prompt"
       )
-      octopus runbook run @args
-  displayName: 'Run Octopus Runbook (CaC project) with pinned package version'
+      $output = & octopus runbook run @cliArgs 2>&1
+      $output | ForEach-Object { Write-Host $_ }
+      Write-Host "Exit code: $LASTEXITCODE"
+      if ($LASTEXITCODE -ne 0) {
+        throw "Octopus runbook run failed with exit code $LASTEXITCODE"
+      }
+      displayName: 'Run Octopus Runbook (CaC project) with pinned package version'
