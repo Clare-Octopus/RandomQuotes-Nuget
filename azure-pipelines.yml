@@ -20,7 +20,7 @@ steps:
   inputs:
     octopusVersion: 2.21.3
 
-  - script: |
+- script: |
       octopus runbook run \
         --project "RunbookADOTest" \
         --name "Runbook" \
@@ -29,4 +29,4 @@ steps:
         --server "$(OctopusServerUrl)" \
         --api-key "${env:OCTOPUSAPIKEY}" \
         --space "Default"
-    displayName: 'Run Octopus Runbook with pinned package version'
+  displayName: 'Run Octopus Runbook with pinned package version'
