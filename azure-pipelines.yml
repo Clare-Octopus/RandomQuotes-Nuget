@@ -15,9 +15,10 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-  - task: OctopusDeployToolInstaller@0
-    inputs:
-      installGoCli: true   # ensures the Go-based `octopus` binary is installed
+- task: octopusdeploy.octopus-deploy-build-release-tasks.octo-installer.OctoInstaller@7
+  displayName: 'Install Octopus CLI tool version '
+  inputs:
+    octopusVersion: 2.21.3
 
   - script: |
       octopus runbook run \
